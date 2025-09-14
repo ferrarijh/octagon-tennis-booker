@@ -12,6 +12,8 @@ pip install -r requirements.txt
 
 ### 2. Check court availability.
 
+- Make sure you created [RIOC website](https://rioc.civicpermits.com/Account/Login) account.
+
 Commandline usage example:
 ```bash
 (base) ➜  octagon_tennis git:(main) ✗ python -m check_avail_async
