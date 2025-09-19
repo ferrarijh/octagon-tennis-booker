@@ -19,7 +19,7 @@ async def send_request(session: aiohttp.ClientSession, url, court_id, ts1, ts2) 
             print(f"Check your permits at: https://rioc.civicpermits.com/")
             return True
         else:
-            print(f"Request failed: status=[{resp.status}], body={resp_body}")
+            print(f"Request failed: status=[{resp.status}], body={await resp.text()}")
             return False
         
 def get_court_name() -> str:
