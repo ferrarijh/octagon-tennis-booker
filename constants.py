@@ -9,7 +9,7 @@ COURTS = {
 }
 LOGIN_URL = "https://rioc.civicpermits.com/Account/Login"
 CHECK_AVAIL_URL = "https://rioc.civicpermits.com/Permits/ConflictCheck"
-EMAIL_DEFAULT = "ferrarijm9@gmail.com"
+EMAIL_DEFAULT = "ferrarijm8@gmail.com"
 PERMIT_REQUEST_URL = "https://rioc.civicpermits.com/Permits"
 
 """
