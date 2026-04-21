@@ -5,7 +5,8 @@ Last update: Apr 7, 2026
 Check conflict request:
 ```
 POST https://rioc.civicpermits.com/Permits/ConflictCheck
-
+```
+```json
 {
   "FacilityNames": [
     "Tennis Courts"
@@ -22,14 +23,14 @@ POST https://rioc.civicpermits.com/Permits/ConflictCheck
 }
 ```
 
-Check conflict fail response - conflict exists:
+Check conflict response - no conflict:
 ```
 200 OK
 
 []
 ```
 
-Check conflict fail response - conflict exists:
+Check conflict response - conflict exists:
 ```
 200 OK
 
@@ -41,7 +42,8 @@ Check conflict fail response - conflict exists:
 Request permit
 ```
 POST https://rioc.civicpermits.com/Permits
-
+```
+```json
 {
   "Activity": "tennis",
   "Events": [

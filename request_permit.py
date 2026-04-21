@@ -1,11 +1,14 @@
+import os
+
 import aiohttp
-import constants
 from login import login
 from utils import *
+from config import *
 import asyncio
+from dotenv import load_dotenv
 
 async def send_request(session: aiohttp.ClientSession, url, court_id, ts1, ts2) -> bool:
-    body = constants.PERMIT_REQUEST_BODY_TEMPLATE.copy()
+    body = PERMIT_REQUEST_BODY_TEMPLATE.copy()
     body["Events"][0]["FacilityIds"] = [court_id]
     body["Events"][0]["Dates"] = [
         {
@@ -22,25 +25,29 @@ async def send_request(session: aiohttp.ClientSession, url, court_id, ts1, ts2) 
             print(f"Request failed: status=[{resp.status}], body={await resp.text()}")
             return False
         
-def get_court_name() -> str:
-    while True:
-        court_number = input(f"Court number(1-6) to request (ex. \"1\"): ").strip()
-        court_name = f"court{court_number}"
-        if court_name in constants.COURTS:
-            return court_name
-        else:
-            print("Invalid court number! Please try again.")
-        
 async def main():
     print("=== Send Octagon Tennis permit request. ===")
+    load_dotenv()
+    
     async with aiohttp.ClientSession() as session:
-        await login(session, constants.LOGIN_URL)
+        email = os.getenv("EMAIL")
+        password = os.getenv("PASSWORD")
+        await login(session, LOGIN_URL, email, password)
 
-        dt_str = get_date().strftime("%Y-%m-%d")
-        t_start = get_time("Start time to request in HH fmt (e.g. \"17\" for 5 PM): ")
-        court_id = constants.COURTS[get_court_name()]
+        dt_str = PERMIT_REQUEST_DATE if PERMIT_REQUEST_DATE else get_date().strftime("%Y-%m-%d")
+        h_start, h_end = PERMIT_REQUEST_WINDOW if PERMIT_REQUEST_WINDOW else get_time_window()
+        court_names = PERMIT_REQUEST_COURTS if PERMIT_REQUEST_COURTS else None
+        if not court_names:
+            print("No courts specified for permit request. Please check config file. Exiting...")
+            return
 
-        await send_request(session, constants.PERMIT_REQUEST_URL, court_id, f"{dt_str}T{t_start}:00:00", f"{dt_str}T{t_start+1}:00:00")
+        for court_name in court_names:
+            court_id = COURTS[court_name]
+            for hh in range(h_start, h_end):
+                permit_res = await send_request(session, PERMIT_REQUEST_URL, court_id, f"{dt_str}T{hh}:00:00", f"{dt_str}T{hh+1}:00:00")
+                if permit_res:
+                    print(f"Request sent successfully for {court_name} from {hh}:00 to {hh+1}:00.")
+                    return
 
 if __name__ == '__main__':
     asyncio.run(main())

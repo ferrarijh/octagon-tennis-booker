@@ -9,8 +9,14 @@ COURTS = {
 }
 LOGIN_URL = "https://rioc.civicpermits.com/Account/Login"
 CHECK_AVAIL_URL = "https://rioc.civicpermits.com/Permits/ConflictCheck"
-EMAIL_DEFAULT = "ferrarijm8@gmail.com"
+CHECK_AVAIL_DATE = None # "2025-09-15"
+CHECK_AVAIL_WINDOW = (12,19)
+
 PERMIT_REQUEST_URL = "https://rioc.civicpermits.com/Permits"
+PERMIT_REQUEST_DATE = None # "2025-09-15"
+PERMIT_REQUEST_WINDOW = (17,19)
+PERMIT_REQUEST_COURTS = ["court1"]#, "court2", "court3", "court4", "court5", "court6"] # courts to send request for, if empty will prompt user to choose one
+
 
 """
 sample permit request body (json):

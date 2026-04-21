@@ -1,6 +1,10 @@
+import os
+
 import aiohttp
 import asyncio
-from constants import *
+
+from dotenv import load_dotenv
+from config import *
 from login import login
 from utils import *
 
@@ -31,11 +35,14 @@ async def main():
     print("=== Check RIOC's Octagon Tennis courts availability. ===")
 
     async with aiohttp.ClientSession() as session:
+        load_dotenv()
+        email = os.getenv("EMAIL")
+        password = os.getenv("PASSWORD")
 
-        await login(session, LOGIN_URL)
+        await login(session, LOGIN_URL, email, password)
 
-        dt = get_date()
-        t1, t2 = get_time_window()
+        dt = CHECK_AVAIL_DATE if CHECK_AVAIL_DATE else get_date()
+        t1, t2 = CHECK_AVAIL_WINDOW if CHECK_AVAIL_WINDOW else get_time_window()
 
         # build tasks for all courts and slots
         tasks = []
@@ -52,12 +59,12 @@ async def main():
                 try:
                     is_avail = await task
                     if is_avail:
-                        # print(f"[{court_name}] Available: {start_ts} to {end_ts}")
+                        print(f"[{court_name}] Available: {start_ts} to {end_ts}")
                         if not available_court_slots.get(court_name):
                             available_court_slots[court_name] = []
                         available_court_slots[court_name].append((start_ts, end_ts))
-                    # else:
-                    #     print(f"[{court_name}] Not available: {start_ts} to {end_ts}")
+                    else:
+                        print(f"[{court_name}] Not available: {start_ts} to {end_ts}")
                 except RuntimeError as e:
                     print(f"[{court_name}] Error for slot {start_ts}-{end_ts}: {e}")
             tasks.clear()
