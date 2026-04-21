@@ -9,9 +9,9 @@ def get_hourly_slots_ts(dt: date, h_start: int, h_end: int) -> list[tuple[str, s
         slots.append((h_start, h_end))
     return slots
 
-def get_date() -> date:
+def get_date_from_input() -> date:
     while True:
-        date_str = input("(Optional) Date to check in YYYY-MM-DD fmt (Defaults to 2 days after today): ").strip()
+        date_str = input("(Optional) Date in YYYY-MM-DD fmt (Defaults to 2 days after today): ").strip()
         if not date_str:
             return date.today() + timedelta(days=2)
         try:

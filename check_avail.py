@@ -41,7 +41,7 @@ async def main():
 
         await login(session, LOGIN_URL, email, password)
 
-        dt = CHECK_AVAIL_DATE if CHECK_AVAIL_DATE else get_date()
+        dt = CHECK_AVAIL_DATE if CHECK_AVAIL_DATE else get_date_from_input()
         t1, t2 = CHECK_AVAIL_WINDOW if CHECK_AVAIL_WINDOW else get_time_window()
 
         # build tasks for all courts and slots
