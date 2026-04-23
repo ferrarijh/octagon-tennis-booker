@@ -40,15 +40,3 @@ def get_time_window() -> tuple[int, int]:
                 print("Invalid time range! Please try again.")
         except ValueError:
             print("Invalid format! Please use HH HH format.")
-
-def get_time(msg: str) -> int:
-    while True:
-        time_str = input(msg).strip()
-        try:
-            t = int(time_str)
-            if 0 <= t < 24:
-                return t
-            else:
-                print("Invalid hour! Please try again.")
-        except ValueError:
-            print("Invalid format! Please enter an integer hour.")

@@ -70,7 +70,6 @@ async def main():
             tasks.clear()
 
         # gather results
-
         if not available_court_slots:
             print("No available courts found.")
         else:

@@ -10,12 +10,28 @@ COURTS = {
 LOGIN_URL = "https://rioc.civicpermits.com/Account/Login"
 CHECK_AVAIL_URL = "https://rioc.civicpermits.com/Permits/ConflictCheck"
 CHECK_AVAIL_DATE = None # Ex) "2025-09-15"
-CHECK_AVAIL_WINDOW = (8,19)
+CHECK_AVAIL_WINDOW = (16, 22)
+
+MON = "MON"
+TUE = "TUE"
+WED = "WED"
+THU = "THU"
+FRI = "FRI"
+SAT = "SAT"
+SUN = "SUN"
 
 PERMIT_REQUEST_URL = "https://rioc.civicpermits.com/Permits"
-PERMIT_REQUEST_DATE = None # Ex) "2025-09-15"
-PERMIT_REQUEST_WINDOW = (9,10)
-PERMIT_REQUEST_COURTS = ["court1"] #["court1","court2", "court3", "court4", "court5", "court6"] # courts to send request for, if empty will prompt user to choose one
+PERMIT_REQUEST_DATE = None # Ex) "2025-09-15" - None defaults to 2 days after today
+PERMIT_REQUEST_HOURS = {
+    MON: (17,18,19,20),
+    TUE: (19,20),
+    WED: (17,18,19,20),
+    THU: (19,20),
+    FRI: (9,10,17,18,19),
+    SAT: (9,10,19,20,21),
+    SUN: (9,10,19,20,21),
+}
+PERMIT_REQUEST_COURTS = ["court1","court2", "court3", "court4", "court5", "court6"] # courts to send request for, if empty will prompt user to choose one
 
 
 """

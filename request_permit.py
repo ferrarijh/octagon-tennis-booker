@@ -42,7 +42,6 @@ def get_date_str(args: argparse.Namespace) -> str|None:
     else:
         date_p2d_str = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d") 
         return date_p2d_str if not PERMIT_REQUEST_DATE else PERMIT_REQUEST_DATE
-
         
 async def main():
     print("=== Send Octagon Tennis permit request. ===")
@@ -61,18 +60,22 @@ async def main():
         password = os.getenv("PASSWORD")
         await login(session, LOGIN_URL, email, password)
 
-        h_start, h_end = PERMIT_REQUEST_WINDOW if PERMIT_REQUEST_WINDOW else get_time_window()
         court_names = PERMIT_REQUEST_COURTS if PERMIT_REQUEST_COURTS else None
         if not court_names:
             print("No courts specified for permit request. Please check config file. Exiting...")
             return
 
+        day = datetime.strptime(dt_str, "%Y-%m-%d").strftime("%a").upper()
+        hh_starts = [hh for hh in PERMIT_REQUEST_HOURS[day]]
+
         for court_name in court_names:
             court_id = COURTS[court_name]
-            for hh in range(h_start, h_end):
-                permit_res = await send_request(session, PERMIT_REQUEST_URL, court_id, f"{dt_str}T{hh:02d}:00:00", f"{dt_str}T{hh+1:02d}:00:00")
+            for hh in hh_starts:
+                ts_start = f"{dt_str}T{hh:02d}:00:00"
+                ts_end = f"{dt_str}T{hh+1:02d}:00:00"
+                permit_res = await send_request(session, PERMIT_REQUEST_URL, court_id, ts_start, ts_end)
                 if permit_res:
-                    print(f"Request sent successfully for {court_name} from {hh}:00 to {hh+1}:00.")
+                    print(f"Request sent successfully for {court_name} from {ts_start} to {ts_end}.")
                     return
 
 if __name__ == '__main__':
