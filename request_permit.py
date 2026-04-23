@@ -9,7 +9,9 @@ from config import *
 import asyncio
 from dotenv import load_dotenv
 
-async def send_request(session: aiohttp.ClientSession, url, court_id, ts1, ts2) -> bool:
+async def send_request(
+        session: aiohttp.ClientSession, 
+        url: str, court_id: str, ts1: str, ts2: str) -> bool:
     print(f"Sending request with court_id={court_id}, ts1={ts1}, ts2={ts2}...")
 
     body = PERMIT_REQUEST_BODY_TEMPLATE.copy()
@@ -68,7 +70,7 @@ async def main():
         for court_name in court_names:
             court_id = COURTS[court_name]
             for hh in range(h_start, h_end):
-                permit_res = await send_request(session, PERMIT_REQUEST_URL, court_id, f"{dt_str}T{hh}:00:00", f"{dt_str}T{hh+1}:00:00")
+                permit_res = await send_request(session, PERMIT_REQUEST_URL, court_id, f"{dt_str}T{hh:02d}:00:00", f"{dt_str}T{hh+1:02d}:00:00")
                 if permit_res:
                     print(f"Request sent successfully for {court_name} from {hh}:00 to {hh+1}:00.")
                     return
