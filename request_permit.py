@@ -10,7 +10,7 @@ import asyncio
 from dotenv import load_dotenv
 
 async def send_request(session: aiohttp.ClientSession, url, court_id, ts1, ts2) -> bool:
-    print("debug: sending request with court_id=", court_id, "ts1=", ts1, "ts2=", ts2)
+    print(f"Sending request with court_id={court_id}, ts1={ts1}, ts2={ts2}...")
 
     body = PERMIT_REQUEST_BODY_TEMPLATE.copy()
     body["Events"][0]["FacilityIds"] = [court_id]
@@ -31,16 +31,15 @@ async def send_request(session: aiohttp.ClientSession, url, court_id, ts1, ts2) 
         
 def get_date_str(args: argparse.Namespace) -> str|None:
     dt_arg = args.dt.strip()
-    dt_str = None
     if dt_arg:
         try:
-            dt_str = datetime.strptime(dt_arg, "%Y-%m-%d").strftime("%Y-%m-%d")
+            return datetime.strptime(dt_arg, "%Y-%m-%d").strftime("%Y-%m-%d")
         except ValueError:
             print("Invalid dt argument. Please use YYYY-MM-DD format.")
-            return
+            return None
     else:
-        dt_str = PERMIT_REQUEST_DATE if PERMIT_REQUEST_DATE else get_date_from_input().strftime("%Y-%m-%d")
-    return dt_str
+        date_p2d_str = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d") 
+        return date_p2d_str if not PERMIT_REQUEST_DATE else PERMIT_REQUEST_DATE
 
         
 async def main():
@@ -53,8 +52,7 @@ async def main():
 
     dt_str=get_date_str(args)
     if not dt_str:
-        print("No valid date provided. Exiting...")
-        return
+        raise ValueError("No valid date provided.")
     
     async with aiohttp.ClientSession() as session:
         email = os.getenv("EMAIL")
