@@ -4,7 +4,7 @@ import aiohttp
 import asyncio
 
 from dotenv import load_dotenv
-from config import *
+from configs.config import *
 from login import login
 from utils import *
 

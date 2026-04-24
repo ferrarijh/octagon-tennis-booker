@@ -5,7 +5,7 @@ from datetime import datetime
 import aiohttp
 from login import login
 from utils import *
-from config import *
+from configs.config import *
 import asyncio
 from dotenv import load_dotenv
 
@@ -49,6 +49,7 @@ async def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--dt", dest="dt", default="")
+    parser.add_argument("--phase", choices=["dev", "prod"], default="dev")
     args = parser.parse_args()
 
     dt_str=get_date_str(args)

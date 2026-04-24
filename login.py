@@ -1,6 +1,6 @@
 import aiohttp
 import getpass
-from config import *
+from configs.config import *
 from yarl import URL
 
 async def login(session: aiohttp.ClientSession, url: str, email: str|None=None, password: str|None=None):

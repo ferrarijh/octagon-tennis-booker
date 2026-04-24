@@ -12,26 +12,20 @@ CHECK_AVAIL_URL = "https://rioc.civicpermits.com/Permits/ConflictCheck"
 CHECK_AVAIL_DATE = None # Ex) "2025-09-15"
 CHECK_AVAIL_WINDOW = (16, 22)
 
-MON = "MON"
-TUE = "TUE"
-WED = "WED"
-THU = "THU"
-FRI = "FRI"
-SAT = "SAT"
-SUN = "SUN"
+from constants import MON, TUE, WED, THU, FRI, SAT, SUN
 
 PERMIT_REQUEST_URL = "https://rioc.civicpermits.com/Permits"
 PERMIT_REQUEST_DATE = None # Ex) "2025-09-15" - None defaults to 2 days after today
-PERMIT_REQUEST_HOURS = {
-    MON: (17,18,19,20),
-    TUE: (19,20),
-    WED: (17,18,19,20),
-    THU: (19,20),
-    FRI: (9,10,17,18,19),
-    SAT: (9,10,19,20,21),
-    SUN: (9,10,19,20,21),
-}
 PERMIT_REQUEST_COURTS = ["court1","court2", "court3", "court4", "court5", "court6"] # courts to send request for, if empty will prompt user to choose one
+
+import argparse
+_phase_parser = argparse.ArgumentParser(add_help=False)
+_phase_parser.add_argument("--phase", choices=["dev", "prod"], default="dev")
+_phase_args, _ = _phase_parser.parse_known_args()
+if _phase_args.phase == "prod":
+    from configs.config_prod import PERMIT_REQUEST_HOURS
+else:
+    from configs.config_dev import PERMIT_REQUEST_HOURS
 
 
 """
