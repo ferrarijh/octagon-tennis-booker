@@ -1,3 +1,4 @@
+import logging
 import os
 
 import aiohttp
@@ -6,7 +7,9 @@ import asyncio
 from dotenv import load_dotenv
 from configs.config import *
 from login import login
-from utils import *
+from utils import setup_logging, get_date_from_input, get_time_window, get_hourly_slots_ts
+
+logger = logging.getLogger(__name__)
 
 async def check_avail(session: aiohttp.ClientSession, court_id: str, start_ts: str, end_ts: str) -> bool:
     body = {
@@ -28,11 +31,12 @@ async def check_avail(session: aiohttp.ClientSession, court_id: str, start_ts: s
         elif resp_body == "[0]":
             return False
         else:
-            print(f"Unknown response: status=[{resp.status}], body={resp_body}")
+            logger.error("Unknown response: status=[%s], body=%s", resp.status, resp_body)
             raise RuntimeError(f"Unknown response: status=[{resp.status}], body={resp_body}")
 
 async def main():
-    print("=== Check RIOC's Octagon Tennis courts availability. ===")
+    setup_logging()
+    logger.info("=== Check RIOC's Octagon Tennis courts availability. ===")
 
     async with aiohttp.ClientSession() as session:
         load_dotenv()
@@ -48,7 +52,7 @@ async def main():
         tasks = []
         available_court_slots = {}
         for court_name, court_id in COURTS.items():
-            print(f"Checking {court_name}'s availability...")
+            logger.info("Checking %s's availability...", court_name)
             slots = get_hourly_slots_ts(dt, t1, t2)
             for start_ts, end_ts in slots:
                 tasks.append(
@@ -59,24 +63,24 @@ async def main():
                 try:
                     is_avail = await task
                     if is_avail:
-                        print(f"[{court_name}] Available: {start_ts} to {end_ts}")
+                        logger.info("[%s] Available: %s to %s", court_name, start_ts, end_ts)
                         if not available_court_slots.get(court_name):
                             available_court_slots[court_name] = []
                         available_court_slots[court_name].append((start_ts, end_ts))
                     else:
-                        print(f"[{court_name}] Not available: {start_ts} to {end_ts}")
+                        logger.info("[%s] Not available: %s to %s", court_name, start_ts, end_ts)
                 except RuntimeError as e:
-                    print(f"[{court_name}] Error for slot {start_ts}-{end_ts}: {e}")
+                    logger.error("[%s] Error for slot %s-%s: %s", court_name, start_ts, end_ts, e)
             tasks.clear()
 
         # gather results
         if not available_court_slots:
-            print("No available courts found.")
+            logger.info("No available courts found.")
         else:
-            print("=== Available court slots found. Check the following list! ===")
+            logger.info("=== Available court slots found. Check the following list! ===")
             for court, slots in available_court_slots.items():
                 for slot in slots:
-                    print(f"court: {court}, slot: {slot}")
+                    logger.info("court: %s, slot: %s", court, slot)
 
 if __name__ == "__main__":
     asyncio.run(main())

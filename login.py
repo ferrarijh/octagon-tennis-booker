@@ -1,18 +1,21 @@
 import aiohttp
 import getpass
+import logging
 from configs.config import *
 from yarl import URL
+
+logger = logging.getLogger(__name__)
 
 async def login(session: aiohttp.ClientSession, url: str, email: str|None=None, password: str|None=None):
     while not email:
         email = input(f"Email: ")
         if not email:
-            print("Email cannot be empty, try again.")
-            
+            logger.warning("Email cannot be empty, try again.")
+
     while not password:
         password = getpass.getpass("Password: ")
         if not password:
-            print("Password cannot be empty, try again.")
+            logger.warning("Password cannot be empty, try again.")
 
     data = {
         "email": email,
@@ -29,9 +32,9 @@ async def login(session: aiohttp.ClientSession, url: str, email: str|None=None, 
 
         if not auth_cookie:
             if resp.status == 200:
-                print("Login failed, please check your email/password")
+                logger.error("Login failed, please check your email/password")
             else:
                 raise RuntimeError(f"Login failed. status={resp.status} .ASPXAUTH not found")
         else:
-            print("Login successful.")
+            logger.info("Login successful.")
             return
