@@ -16,7 +16,7 @@ from constants import MON, TUE, WED, THU, FRI, SAT, SUN
 
 PERMIT_REQUEST_URL = "https://rioc.civicpermits.com/Permits"
 PERMIT_REQUEST_DATE = None # Ex) "2025-09-15" - None defaults to 2 days after today
-PERMIT_REQUEST_COURTS = ["court1","court2", "court3", "court4", "court5", "court6"] # courts to send request for, if empty will prompt user to choose one
+PERMIT_REQUEST_COURTS = ["court2","court1", "court3", "court4", "court5", "court6"] # courts to send request for, if empty will prompt user to choose one
 
 import argparse
 _phase_parser = argparse.ArgumentParser(add_help=False)
