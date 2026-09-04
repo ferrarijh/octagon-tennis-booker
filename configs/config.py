@@ -7,16 +7,25 @@ COURTS = {
     "court5": "8a5ca8e8-3be0-4145-a4ef-91a69671295b",
     "court6": "77c7f42c-8891-4818-a610-d5c1027c62fe"
 }
-LOGIN_URL = "https://rioc.civicpermits.com/Account/Login"
-CHECK_AVAIL_URL = "https://rioc.civicpermits.com/Permits/ConflictCheck"
+BASE_URL = "https://rioc.civicpermits.com"
+LOGIN_URL = f"{BASE_URL}/Account/Login"
+CHECK_AVAIL_URL = f"{BASE_URL}/Permits/ConflictCheck"
 CHECK_AVAIL_DATE = None # Ex) "2025-09-15"
 CHECK_AVAIL_WINDOW = (16, 22)
 
 from constants import MON, TUE, WED, THU, FRI, SAT, SUN
 
-PERMIT_REQUEST_URL = "https://rioc.civicpermits.com/Permits"
+PERMIT_REQUEST_URL = f"{BASE_URL}/Permits"
 PERMIT_REQUEST_DATE = None # Ex) "2025-09-15" - None defaults to 2 days after today
 PERMIT_REQUEST_COURTS = ["court2","court1", "court3", "court4", "court5", "court6"] # courts to send request for, if empty will prompt user to choose one
+
+MY_PERMITS_URL = f"{BASE_URL}/Permits/MyPermits"
+
+RESERVATION_TZ = "America/New_York"
+RESERVATION_WINDOW_START_HOUR = 8
+RESERVATION_WINDOW_END_HOUR = 16
+CLOCK_POLL_INTERVAL_SEC = 1
+CLOCK_MAX_WAIT_SEC = 30
 
 import argparse
 _phase_parser = argparse.ArgumentParser(add_help=False)

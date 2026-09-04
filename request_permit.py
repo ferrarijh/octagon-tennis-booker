@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 import aiohttp
 from login import login
-from utils import setup_logging, get_hourly_slots_ts
+from utils import setup_logging, get_hourly_slots_ts, wait_for_reservation_window
 from configs.config import *
 import asyncio
 from dotenv import load_dotenv
@@ -87,6 +87,19 @@ async def main():
         court_names = PERMIT_REQUEST_COURTS if PERMIT_REQUEST_COURTS else None
         if not court_names:
             logger.error("No courts specified for permit request. Please check config file. Exiting...")
+            return
+
+        window_ok = await wait_for_reservation_window(
+            session,
+            BASE_URL,
+            window_start_hour=RESERVATION_WINDOW_START_HOUR,
+            window_end_hour=RESERVATION_WINDOW_END_HOUR,
+            poll_interval=CLOCK_POLL_INTERVAL_SEC,
+            max_wait=CLOCK_MAX_WAIT_SEC,
+            tz=RESERVATION_TZ,
+        )
+        if not window_ok:
+            logger.error("Aborting permit request: server time is outside the valid reservation window.")
             return
 
         await asyncio.gather(*(book_date(session, dt_str, court_names) for dt_str in dt_strs))

@@ -1,6 +1,11 @@
+import asyncio
 import logging
 import sys
 from datetime import date, timedelta, datetime
+from email.utils import parsedate_to_datetime
+from zoneinfo import ZoneInfo
+
+import aiohttp
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +27,61 @@ def get_hourly_slots_ts(dt: date, h_start: int, h_end: int) -> list[tuple[str, s
         h_end = f"{formatted}T{hour+1:02d}:00:00"
         slots.append((h_start, h_end))
     return slots
+
+async def get_server_datetime(session: aiohttp.ClientSession, url: str, tz: str = "America/New_York") -> datetime:
+    async with session.head(url) as resp:
+        date_header = resp.headers.get("Date")
+    if not date_header:
+        raise RuntimeError(f"Server response from {url} has no Date header.")
+    return parsedate_to_datetime(date_header).astimezone(ZoneInfo(tz))
+
+
+async def wait_for_reservation_window(
+    session: aiohttp.ClientSession,
+    url: str,
+    window_start_hour: int = 8,
+    window_end_hour: int = 16,
+    poll_interval: float = 1.0,
+    max_wait: float = 180.0,
+    tz: str = "America/New_York",
+) -> bool:
+    """Poll the server's Date header until its local time falls within
+    [window_start_hour, window_end_hour) on a weekday, to avoid submitting
+    a request a few seconds early/late due to clock skew with the Mac."""
+    wait_started_at = None
+    elapsed = 0.0
+    while True:
+        now = await get_server_datetime(session, url, tz=tz)
+        now_str = now.strftime("%Y-%m-%d %H:%M:%S %Z")
+
+        if now.weekday() < 5 and window_start_hour <= now.hour < window_end_hour:
+            if wait_started_at is not None:
+                logger.info(
+                    "Reservation window opened. Waited %.0fs (started waiting at %s, server time now %s).",
+                    elapsed, wait_started_at.strftime("%Y-%m-%d %H:%M:%S %Z"), now_str,
+                )
+            return True
+
+        if now.weekday() >= 5 or now.hour >= window_end_hour:
+            logger.error(
+                "Server time %s is outside the reservation window (%02d:00-%02d:00, Mon-Fri). Aborting.",
+                now_str, window_start_hour, window_end_hour,
+            )
+            return False
+
+        if elapsed >= max_wait:
+            logger.error(
+                "Timed out after %.0fs waiting for reservation window to open (started waiting at %s, server time now %s). Aborting.",
+                max_wait, wait_started_at.strftime("%Y-%m-%d %H:%M:%S %Z"), now_str,
+            )
+            return False
+
+        if wait_started_at is None:
+            wait_started_at = now
+
+        await asyncio.sleep(poll_interval)
+        elapsed += poll_interval
+
 
 def get_date_from_input() -> date:
     while True:
